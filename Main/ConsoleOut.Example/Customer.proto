@@ -1,0 +1,41 @@
+﻿syntax = "proto3";
+
+package google.protobuf;
+
+option csharp_namespace = "ConsoleOut.Example.Contracts";
+
+service CustomerService {
+	rpc GetCustomerById(GetCustomerByIdRequest) returns (GetCustomerByIdResponse) { }
+	rpc ListCustomers(CustomerSearch) returns (stream Customer) {}
+	rpc AddCustomers(stream Customer) returns (AddCustomersResponse) { }
+	rpc CheckCustomer(stream CheckCustomerRequest) returns (stream CheckCustomerResponse) { }
+}
+
+message GetCustomerByIdRequest {
+	int32 Id = 1;
+}
+
+message GetCustomerByIdResponse {
+	Customer Customer = 1;
+}
+
+message CustomerSearch {
+	string Name = 1;
+}
+
+message AddCustomersResponse {
+}
+
+message CheckCustomerRequest {
+	int32 Id = 1;
+}
+
+message CheckCustomerResponse {
+	bool Exists = 1;
+}
+
+message Customer {
+	int32 Id = 1;
+	string FirstName = 2;
+    string LastName = 3;
+}
