@@ -19,15 +19,14 @@ namespace ConsoleOut.GrpcCallInterecpter
     {
         private readonly CallInterceptorOptions _options;
 
-        public CallInterceptor(IOptionsMonitor<CallInterceptorOptions> options, Channel channel) : base(channel)
+        public CallInterceptor(IOptions<CallInterceptorOptions> options, Channel channel) : base(channel)
         {
-            _options = options.CurrentValue;
+            _options = options.Value;
         }
 
         public override AsyncClientStreamingCall<TRequest, TResponse> AsyncClientStreamingCall<TRequest, TResponse>(Method<TRequest, TResponse> method, string host, CallOptions options)
         {
-            if (_options.ServiceName.AreEqual(method.ServiceName) &&
-                options.Headers.Where(x => x.Key.AreEqual("tag")).Any(x => x.Value.AreEqual(_options.Tag)))
+            if (ShouldIntercept(_options, method))
             {
                 var response = JsonConvert.DeserializeObject<TResponse>(_options.JsonResponseContent);
 
@@ -50,13 +49,13 @@ namespace ConsoleOut.GrpcCallInterecpter
 
         public override AsyncServerStreamingCall<TResponse> AsyncServerStreamingCall<TRequest, TResponse>(Method<TRequest, TResponse> method, string host, CallOptions options, TRequest request)
         {
+
             return base.AsyncServerStreamingCall(method, host, options, request);
         }
 
         public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(Method<TRequest, TResponse> method, string host, CallOptions options, TRequest request)
         {
-            if (_options.ServiceName.AreEqual(method.ServiceName) &&
-                options.Headers.Where(x => x.Key.AreEqual("tag")).Any(x => x.Value.AreEqual(_options.Tag)))
+            if (ShouldIntercept(_options, method))
             {
                 var response = JsonConvert.DeserializeObject<TResponse>(_options.JsonResponseContent);
 
@@ -73,8 +72,7 @@ namespace ConsoleOut.GrpcCallInterecpter
 
         public override TResponse BlockingUnaryCall<TRequest, TResponse>(Method<TRequest, TResponse> method, string host, CallOptions options, TRequest request)
         {
-            if (_options.ServiceName.AreEqual(method.ServiceName) &&
-                options.Headers.Where(x => x.Key.AreEqual("tag")).Any(x => x.Value.AreEqual(_options.Tag)))
+            if (ShouldIntercept(_options, method))
             {
                 var response = JsonConvert.DeserializeObject<TResponse>(_options.JsonResponseContent);
 
@@ -82,6 +80,17 @@ namespace ConsoleOut.GrpcCallInterecpter
             }
 
             return base.BlockingUnaryCall(method, host, options, request);
+        }
+
+        private static bool ShouldIntercept<TRequest, TResponse>(CallInterceptorOptions interceptorOptions, Method<TRequest, TResponse> method)
+        {
+            if (!interceptorOptions.ServiceName.AreEqual(method.ServiceName))
+                return false;
+
+            if (!interceptorOptions.ResponseType.AreEqual(typeof(TResponse).Name))
+                return false;
+
+            return true;
         }
     }
 }
