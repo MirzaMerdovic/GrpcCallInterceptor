@@ -26,10 +26,12 @@ var options = Options.Create(new CallInterceptorOptions
 
 The configuration in _appsettings.json_ would look like this:
 ```js
-"CallInterceptorOptions": {
-    "ServiceName": "google.protobuf.CustomerService",
-    "ResponseType": "GetCustomerByIdResponse",
-    "JsonResponseContent": "{Customer: {"Id":1,"FirstName":"Ed","LastName":"Torsten"}}"
+{
+    "CallInterceptorOptions": {
+       "ServiceName": "google.protobuf.CustomerService",
+       "ResponseType": "GetCustomerByIdResponse",
+       "JsonResponseContent": "{Customer: {\"Id\":1,\"FirstName\":\"Ed\",\"LastName\":\"Torsten\"}}"
+   }
 }
 ```
 
