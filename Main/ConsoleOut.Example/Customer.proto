@@ -24,6 +24,7 @@ message CustomerSearch {
 }
 
 message AddCustomersResponse {
+	int32 Id = 1;
 }
 
 message CheckCustomerRequest {
